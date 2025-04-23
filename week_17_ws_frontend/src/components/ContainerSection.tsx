@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { roomCode } from 
 
 export const ContainerSection = () => {
     const inputRef = useRef("");
@@ -9,6 +10,10 @@ export const ContainerSection = () => {
             return;
         }
         
+    }
+
+    function joinRoomHandler() {
+        const roomId = 
     }
 
     return <div className="h-screen flex justify-center items-center p-2">

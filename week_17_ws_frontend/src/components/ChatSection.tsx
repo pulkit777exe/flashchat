@@ -10,10 +10,16 @@ export const ChatSection = () => {
         if (!roomOpen) {
             const random = randomStringGen();
             setRoomOpen(true);
-            setRoomCode(random)
-            return random
+            setRoomCode(random);
+            return random;
         } else {
             return "";
+        }
+    } 
+
+    function joinRoom(roomId: String) {
+        if (!roomId) {
+            console.log("RoomId incorrect");
         }
     }
 
@@ -28,7 +34,7 @@ export const ChatSection = () => {
     return <div className="h-screen flex justify-center items-center">
         <div className="border border-gray-800 p-8 min-w-96 shadow-white rounded-xl">
             <div className="flex gap-1 text-2xl">
-                <ChatIcon />
+                <ChatIcon />    
                 <div>
                     Chat App
                 </div>
@@ -42,9 +48,9 @@ export const ChatSection = () => {
                 </div>
             </div>
             <div className="flex flex-col mt-8">
-                <input type="text" placeholder="Enter your name..." className="border border-gray-800 p-2"/>
+                <input type="text" placeholder="Enter your name..." className="border border-gray-800 p-2" required/>
                 <div className="flex flex-end mt-2">
-                    <input type="text" placeholder="Enter room code..." className="border border-gray-800 p-2 flex-grow"/>
+                    <input type="text" placeholder="Enter room code..." className="border border-gray-800 p-2 flex-grow" required/>
                     <button className="text-black bg-white p-1 rounded-md font-bold hover:bg-white/90 cursor-pointer duration-300">Join Room</button>
                 </div>
             </div>
@@ -53,7 +59,7 @@ export const ChatSection = () => {
                 <div>
                     This is the code, please copy it and give it to the reciever
                 </div>
-                <div className="text-2xl text-white text-center"> 
+                <div className="text-4xl text-white text-center"> 
                     {roomCode} <button onClick={handleCopy} className="cursor-pointer">{<CopyIcon />}</button>
                 </div>
             </div> : <div className="hidden">
