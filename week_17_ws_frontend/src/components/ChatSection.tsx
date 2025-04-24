@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { ChatIcon } from "../icons/ChatIcon"
-import { randomStringGen } from "../utils/random"
+import { ChatIcon } from "../icons/ChatIcon";
+import { randomStringGen } from "../utils/random";
 import { CopyIcon } from "../icons/CopyIcon";
+import { useNavigate } from "react-router-dom";
+
 export const ChatSection = () => {
     const [roomOpen, setRoomOpen] = useState(false);
     const [roomCode, setRoomCode] = useState("");
+    const [userName, setUserName] = useState("");
+    const [inputRoomCode, setInputRoomCode] = useState("");
+    const navigate = useNavigate();
 
     function createRoomCode() {
         if (!roomOpen) {
@@ -12,60 +17,94 @@ export const ChatSection = () => {
             setRoomOpen(true);
             setRoomCode(random);
             return random;
-        } else {
-            return "";
         }
-    } 
+        return "";
+    }
 
-    function joinRoom(roomId: String) {
-        if (!roomId) {
-            console.log("RoomId incorrect");
+    function joinRoomHandler() {
+        if (!userName || !inputRoomCode) {
+            alert("Please enter your name and room code.");
+            return;
         }
+
+        navigate("/chat", {
+            state: {
+                roomCode: inputRoomCode,
+                userName: userName,
+            },
+        });
     }
 
     const handleCopy = async () => {
         try {
-          await navigator.clipboard.writeText(roomCode);
+            await navigator.clipboard.writeText(roomCode);
         } catch (err) {
-          console.log('Failed to copy text.', err);
+            console.log("Failed to copy text.", err);
         }
     };
 
-    return <div className="h-screen flex justify-center items-center">
-        <div className="border border-gray-800 p-8 min-w-96 shadow-white rounded-xl">
-            <div className="flex gap-1 text-2xl">
-                <ChatIcon />    
-                <div>
-                    Chat App
+    return (
+        <div className="h-screen flex justify-center items-center bg-black text-white px-4">
+            <div className="border border-gray-800 p-8 min-w-[360px] shadow-white rounded-xl w-full max-w-md">
+                <div className="flex items-center gap-2 text-2xl font-semibold">
+                    <ChatIcon />
+                    <span>Chat App</span>
                 </div>
-            </div>
-            <div className="text-gray-400 text-md mt-2">
-                this is a temorary room to chat with each other
-            </div>
-            <div className="">
-                <div className="mt-4">
-                    <button className="w-full text-black bg-white p-4 rounded-md font-bold font-stretch-120% hover:bg-white/90 cursor-pointer duration-300" onClick={createRoomCode}>Create New Room</button>
-                </div>
-            </div>
-            <div className="flex flex-col mt-8">
-                <input type="text" placeholder="Enter your name..." className="border border-gray-800 p-2" required/>
-                <div className="flex flex-end mt-2">
-                    <input type="text" placeholder="Enter room code..." className="border border-gray-800 p-2 flex-grow" required/>
-                    <button className="text-black bg-white p-1 rounded-md font-bold hover:bg-white/90 cursor-pointer duration-300">Join Room</button>
-                </div>
-            </div>
-            {roomOpen ? 
-            <div className="flex flex-col bg-gray-900 mt-8 p-2 rounded-xl">
-                <div>
-                    This is the code, please copy it and give it to the reciever
-                </div>
-                <div className="text-4xl text-white text-center"> 
-                    {roomCode} <button onClick={handleCopy} className="cursor-pointer">{<CopyIcon />}</button>
-                </div>
-            </div> : <div className="hidden">
 
-            </div>}
+                <p className="text-gray-400 text-sm mt-2">
+                    A temporary room to chat with each other.
+                </p>
+
+                <div className="mt-6">
+                    <button
+                        className="w-full text-black bg-white p-3 rounded-md font-bold hover:bg-white/90 transition"
+                        onClick={createRoomCode}
+                    >
+                        Create New Room
+                    </button>
+                </div>
+
+                <div className="mt-8 space-y-3">
+                    <input
+                        type="text"
+                        placeholder="Enter your name..."
+                        className="w-full border border-gray-800 p-2 rounded text-white"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        required
+                    />
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="Enter room code..."
+                            className="border border-gray-800 p-2 flex-grow rounded text-white"
+                            value={inputRoomCode}
+                            onChange={(e) => setInputRoomCode(e.target.value)}
+                            required
+                        />
+                        <button
+                            className="text-black bg-white px-4 rounded-md font-bold hover:bg-white/90 transition"
+                            onClick={joinRoomHandler}
+                        >
+                            Join
+                        </button>
+                    </div>
+                </div>
+
+                {roomOpen && (
+                    <div className="bg-gray-800 mt-8 p-4 rounded-xl">
+                        <p className="text-sm text-gray-300">
+                            This is your room code. Share it with others to let them join:
+                        </p>
+                        <div className="text-2xl text-white mt-2 flex items-center justify-between">
+                            <span>{roomCode}</span>
+                            <button onClick={handleCopy} className="ml-2 hover:text-gray-300">
+                                <CopyIcon />
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
-
-    </div>
-}
+    );
+};
