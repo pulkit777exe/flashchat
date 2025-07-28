@@ -1,10 +1,10 @@
 {
-  "name": "17_websockets",
+  "name": "flashchat-be",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsc -b && node ./dist/index.js",
+    "start": "tsc -b && node ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
