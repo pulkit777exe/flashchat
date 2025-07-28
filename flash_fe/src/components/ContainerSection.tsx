@@ -9,7 +9,7 @@ interface ChatMessage {
 
 interface TypingIndicator {
   personName: string;
-  timestamp: number; // To help with timeout/cleanup
+  timestamp: number; 
 }
 
 export const ContainerSection = () => {
@@ -152,8 +152,7 @@ export const ContainerSection = () => {
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              // Added animate-fadeInUp class here
-              className={`p-3 rounded-lg max-w-[80%] animate-fadeInUp ${
+              className={`p-3 rounded-lg max-w-[80%] ${
                 msg.type === "chat"
                   ? msg.personName === userName
                     ? "bg-gray-600 text-white self-end rounded-br-none ml-auto"
