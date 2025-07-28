@@ -119,7 +119,7 @@ export const ContainerSection = () => {
         })
       );
       typingTimeoutRef.current = null; // Reset timeout ref.
-    }, 1500);
+    }, 1500) as unknown as number; // Cast to number for compatibility.
   };
 
   // Handler for sending messages.
