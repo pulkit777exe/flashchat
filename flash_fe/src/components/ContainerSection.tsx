@@ -28,7 +28,7 @@ export const ContainerSection = () => {
 
   useEffect(() => {
     // Determine the WebSocket URL. Use environment variable or default to localhost.
-    const ws = new WebSocket(process.REACT_APP_WEBSOCKET_URL || "ws://localhost:8080");
+    const ws = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:8080");
 
     // Event listener for when the WebSocket connection is opened.
     ws.onopen = () => {
