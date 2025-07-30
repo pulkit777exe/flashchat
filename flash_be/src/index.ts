@@ -1,7 +1,11 @@
 import { WebSocketServer, WebSocket } from "ws";
-const PORT = process.env.WEBSOCKET_PORT || 8080;
-const wss = new WebSocketServer({ port: Number(PORT) });
-console.log(`WebSocket Server running on ws://${process.env.BACKEND_URL}:${process.env.WEBSOCKET_PORT || 8080}`);
+import dotenv from "dotenv";
+dotenv.config();
+
+const PORT = process.env.NODE_WEBSOCKET_PORT;
+const BACKEND_URL = process.env.NODE_BACKEND_URL;
+
+console.log(`WebSocket Server running on ${BACKEND_URL}:${PORT}`);
 
 // Stores active WebSockets per room
 const allSockets: { [roomId: string]: WebSocket[] } = {};
@@ -30,7 +34,10 @@ interface MessagePayload {
   personName: string;
 }
 
-wss.on("connection", (socket: WebSocket) => {
+try {
+  const wss = new WebSocketServer({ port: Number(PORT) });
+
+  wss.on("connection", (socket: WebSocket) => {
   console.log("User connected");
 
   // Store the room and personName associated with this socket
@@ -215,3 +222,8 @@ wss.on("connection", (socket: WebSocket) => {
     }
   });
 });
+
+} catch (err) {
+  console.error("Failed to start WebSocket server:", err);
+  process.exit(1);
+}
