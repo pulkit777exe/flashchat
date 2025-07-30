@@ -1,13 +1,22 @@
 import { WebSocketServer, WebSocket } from "ws";
 const PORT = process.env.WEBSOCKET_PORT || 8080;
 const wss = new WebSocketServer({ port: Number(PORT) });
-console.log(`WebSocket Server running on ws://localhost:${process.env.WEBSOCKET_PORT || 8080}`);
+console.log(`WebSocket Server running on ws://${process.env.BACKEND_URL}:${process.env.WEBSOCKET_PORT || 8080}`);
 
 // Stores active WebSockets per room
 const allSockets: { [roomId: string]: WebSocket[] } = {};
 
 // Stores typing users per room
-// Example: { "room1": { "userA": true, "userB": true }, "room2": { "userC": true } }
+// Example: {
+//    "room1": {
+//      "userA": true, 
+//      "userB": true 
+//    }, 
+//    "room2": {
+//      "userC": true 
+//    } 
+// }
+
 const typingUsersPerRoom: {
   [roomId: string]: { [personName: string]: boolean };
 } = {};
