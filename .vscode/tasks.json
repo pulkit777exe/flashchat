@@ -4,11 +4,11 @@
     {
       "label": "Start",
       "detail": "Start the Client and Server",
-      "dependsOn": ["Start Frontend", "Start Backend"],
+      "dependsOn": ["Run Frontend", "Run Backend"],
       "problemMatcher": []
     },
     {
-      "label": "Start Frontend",
+      "label": "Run Frontend",
       "type": "npm",
       "script": "dev",
       "path": "flash_fe",
@@ -19,12 +19,12 @@
       }
     },
     {
-      "label": "Start Backend",
+      "label": "Run Backend",
       "type": "npm",
       "script": "dev",
       "path": "flash_be",
       "problemMatcher": [],
-      "detail": "Start the Express Server",
+      "detail": "Run the Express Server",
       "options": {
         "cwd": "${workspaceFolder}/flash_be"
       }

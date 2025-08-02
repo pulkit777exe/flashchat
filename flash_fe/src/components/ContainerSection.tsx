@@ -28,12 +28,14 @@ export const ContainerSection = () => {
   
   useEffect(() => {
     //check for environment variables
-    if (!(import.meta.env.REACT_APP_WEBSOCKET_URL || import.meta.env.REACT_APP_WEBSOCKET_PORT)) {
+    if (!(import.meta.env.VITE_WEBSOCKET_URL || import.meta.env.VITE_WEBSOCKET_PORT)) {
     console.log("Cannot connect to websocket server");
     return ;
-  }
+    }
+    const url = import.meta.env.VITE_WEBSOCKET_URL + ":" + import.meta.env.VITE_WEBSOCKET_PORT;
+    console.log("Connecting to WebSocket server at", url);
     // this line has error
-    const ws = new WebSocket(import.meta.env.REACT_APP_WEBSOCKET_URL+":"+import.meta.env.REACT_APP_WEBSOCKET_PORT);
+    const ws = new WebSocket(url);
 
     // Event listener for when the WebSocket connection is opened.
     ws.onopen = () => {
@@ -191,8 +193,8 @@ export const ContainerSection = () => {
               className={`p-3 rounded-lg max-w-[80%] ${
                 msg.type === "chat"
                   ? msg.personName === userName
-                    ? "bg-gray-600 text-white self-end rounded-br-none ml-auto" // Changed color for current user
-                    : "bg-gray-800 text-white self-start rounded-bl-none mr-auto" // Changed color for other users
+                    ? "bg-gray-600 text-white self-end rounded-br-none ml-auto" 
+                    : "bg-gray-800 text-white self-start rounded-bl-none mr-auto" 
                   : "text-gray-400 self-center text-sm italic"
               } ${msg.type === "info" ? "text-center w-full" : ""}`}
             >
@@ -205,7 +207,7 @@ export const ContainerSection = () => {
             </div>
           ))}
           {getTypingIndicatorText() && (
-            <div className="self-start text-gray-500 text-sm italic mt-2 animate-pulse">
+            <div className="self-start text-gray-200 text-sm italic mt-2 animate-pulse">
               {getTypingIndicatorText()}
             </div>
           )}
@@ -226,7 +228,7 @@ export const ContainerSection = () => {
           />
           <button
             onClick={sendHandler}
-            className="bg-gray-500 hover:bg-gray-600 duration-300 text-white px-6 py-3 rounded-r-lg font-bold shadow-md" // Improved button styling
+            className="bg-white hover:bg-gray-400 duration-300 text-black px-6 py-3 rounded-r-lg font-bold shadow-md" // Improved button styling
           >
             Send
           </button>
