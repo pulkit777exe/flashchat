@@ -1,1 +1,1 @@
-{"root":["./src/index.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./src/controllers/userController.ts","./src/services/socketStore.ts","./src/types/messageTypes.ts","./src/utils/broadcast.ts","./src/utils/logger.ts"],"version":"5.8.3"}
