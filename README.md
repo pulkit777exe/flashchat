@@ -1,3 +1,4 @@
+do state management
 # Flash Chat 💬
 
 A real-time chat application built with WebSockets, focusing on seamless frontend experience and efficient real-time communication.

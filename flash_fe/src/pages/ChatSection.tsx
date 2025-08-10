@@ -1,14 +1,24 @@
-import { useState } from "react";
 import { ChatIcon } from "../icons/ChatIcon";
 import { randomStringGen } from "../utils/random";
 import { CopyIcon } from "../icons/CopyIcon";
 import { useNavigate } from "react-router-dom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { RoomOpenAtom } from "../store/atoms/RoomOpenAtom";
+import { UserNameAtom } from "../store/atoms/UserNameAtom";
+import { InputRoomCodeAtom } from "../store/atoms/InputRoomCodeAtom";
+import { RoomCode } from "../store/atoms/RoomCodeAtom";
 
 export const ChatSection = () => {
-    const [roomOpen, setRoomOpen] = useState(false);
-    const [roomCode, setRoomCode] = useState("");
-    const [userName, setUserName] = useState("");
-    const [inputRoomCode, setInputRoomCode] = useState("");
+
+    const roomOpen = useRecoilValue(RoomOpenAtom);
+    const setRoomOpen = useSetRecoilState(RoomOpenAtom);
+    const userName = useRecoilValue(UserNameAtom);
+    const setUserName = useSetRecoilState(UserNameAtom);
+    const roomCode = useRecoilValue(RoomCode);
+    const setRoomCode = useSetRecoilState(RoomCode);
+    const inputRoomCode = useRecoilValue(InputRoomCodeAtom);
+    const setInputRoomCode = useSetRecoilState(InputRoomCodeAtom);
+
     const navigate = useNavigate();
 
     function createRoomCode() {
@@ -26,11 +36,12 @@ export const ChatSection = () => {
             alert("Please enter your name and room code.");
             return;
         }
-
+        const randomId = randomStringGen();
         navigate("/chat", {
             state: {
                 roomCode: inputRoomCode,
                 userName: userName,
+                userId: userName + randomId,
             },
         });
     }
@@ -42,6 +53,13 @@ export const ChatSection = () => {
             console.log("Failed to copy text.", err);
         }
     };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      joinRoomHandler();
+    }
+  };
+
 
     return (
         <div className="h-screen flex justify-center items-center bg-black text-white px-4">
@@ -71,6 +89,7 @@ export const ChatSection = () => {
                         className="w-full border border-gray-800 p-2 rounded text-white"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         required
                     />
                     <div className="flex gap-2">
@@ -80,6 +99,7 @@ export const ChatSection = () => {
                             className="border border-gray-800 p-2 flex-grow rounded text-white"
                             value={inputRoomCode}
                             onChange={(e) => setInputRoomCode(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             required
                         />
                         <button
