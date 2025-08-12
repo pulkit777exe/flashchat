@@ -9,6 +9,7 @@ import { RoomOpenAtom } from '../store/atoms/RoomOpenAtom';
 import { ChatIcon } from '../icons/ChatIcon';
 import { validateRoomCode, validateUserName } from '../utils/validation';
 import { generateRoomCode } from '../utils/roomCodeGenerator';
+import { CopyRoomCodeButton } from '../components/CopyRoomCodeButton';
 
 export default function ChatSection () {
   const navigate = useNavigate();
@@ -94,22 +95,6 @@ export default function ChatSection () {
       setErrors({ roomCode: 'Failed to join room. Please try again.' });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleCopyRoomCode = async () => {
-    try {
-      await navigator.clipboard.writeText(roomCode);
-      setNotification({
-        type: 'success',
-        message: 'Room code copied to clipboard!'
-      });
-    } catch (error) {
-      console.error('Failed to copy room code:', error);
-      setNotification({
-        type: 'error',
-        message: 'Failed to copy room code'
-      });
     }
   };
 
@@ -270,13 +255,7 @@ export default function ChatSection () {
               <span className="text-2xl font-mono text-white tracking-wider font-bold">
                 {roomCode}
               </span>
-              <button
-                onClick={handleCopyRoomCode}
-                className="text-blue-400 hover:text-blue-300 transition-colors p-2 rounded-md hover:bg-blue-600/20"
-                title="Copy room code"
-              >
-                <span className="text-xl">📋</span>
-              </button>
+              <CopyRoomCodeButton roomCode={roomCode} />
             </div>
             <button
               onClick={navigateToCreatedRoom}

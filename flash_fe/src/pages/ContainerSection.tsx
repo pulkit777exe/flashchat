@@ -5,6 +5,7 @@ import { useWebSocket } from "../hooks/useWebSocket";
 import { useTypingIndicator } from "../hooks/useTypingIndicator";
 import { TypingIndicatorComponent } from "../components/TypingIndicator";
 import { MessageBubble } from "../components/MessageBubble";
+import { ConnectionStatus } from "../components/ConnectionStatus";
 
 export default function ContainerSection () {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,15 +51,6 @@ export default function ContainerSection () {
     stopTyping();
   };
 
-  const getStatusColor = () => {
-    switch (connectionStatus) {
-      case 'connected': return 'text-green-400';
-      case 'connecting': return 'text-yellow-400';
-      case 'disconnected': return 'text-red-400';
-      default: return 'text-gray-400';
-    }
-  };
-
   // Don't render if missing required data
   if (!roomCode || !userName || !userId) {
     return null;
@@ -74,10 +66,7 @@ export default function ContainerSection () {
             <p className="text-sm text-gray-400">Logged in as {userName}</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 text-sm ${getStatusColor()}`}>
-              <div className="w-2 h-2 rounded-full bg-current"></div>
-              {connectionStatus.charAt(0).toUpperCase() + connectionStatus.slice(1)}
-            </div>
+            <ConnectionStatus status={connectionStatus} />
             <button
               onClick={() => navigate('/join')}
               className="text-gray-400 hover:text-white transition-colors text-sm px-3 py-1 rounded-md hover:bg-gray-700/50"

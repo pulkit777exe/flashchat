@@ -98,3 +98,21 @@ flashchat/
 ## Contributing
 
 Feel free to contribute to this project! Please create an issue first to discuss any major changes.
+
+- Real-time messaging via WebSockets
+- Typing indicators
+- Temporary rooms, no auth required
+
+## Notes
+- Frontend reads `VITE_WEBSOCKET_URL` (default `ws://localhost:8080`).
+- Backend reads `NODE_BACKEND_URL` and `NODE_WEBSOCKET_PORT` with safe defaults.
+
+## Scripts
+- Backend: `npm run dev` (build + start)
+- Frontend: `pnpm run dev`, `pnpm run build`, `pnpm run lint`
+
+## Roadmap
+- Message history and persistence
+- Presence indicators
+- File/image sharing
+- Tests (unit/integration)
