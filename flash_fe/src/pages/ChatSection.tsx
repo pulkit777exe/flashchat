@@ -1,65 +1,22 @@
 import { ChatIcon } from "../icons/ChatIcon";
-import { randomStringGen } from "../utils/random";
-import { CopyIcon } from "../icons/CopyIcon";
-import { useNavigate } from "react-router-dom";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { RoomOpenAtom } from "../store/atoms/RoomOpenAtom";
 import { UserNameAtom } from "../store/atoms/UserNameAtom";
 import { InputRoomCodeAtom } from "../store/atoms/InputRoomCodeAtom";
 import { RoomCode } from "../store/atoms/RoomCodeAtom";
+import handleKeyDown from "../handlers/handleKeyDown";
+import { JoinRoomHandler } from "../handlers/joinRoomHandler";
+import { CreateRoomCodeButton } from "../handlers/createRoomCode";
+import { HandleCopy } from "../handlers/handleCopy";
 
 export const ChatSection = () => {
 
     const roomOpen = useRecoilValue(RoomOpenAtom);
-    const setRoomOpen = useSetRecoilState(RoomOpenAtom);
     const userName = useRecoilValue(UserNameAtom);
     const setUserName = useSetRecoilState(UserNameAtom);
     const roomCode = useRecoilValue(RoomCode);
-    const setRoomCode = useSetRecoilState(RoomCode);
     const inputRoomCode = useRecoilValue(InputRoomCodeAtom);
     const setInputRoomCode = useSetRecoilState(InputRoomCodeAtom);
-
-    const navigate = useNavigate();
-
-    function createRoomCode() {
-        if (!roomOpen) {
-            const random = randomStringGen();
-            setRoomOpen(true);
-            setRoomCode(random);
-            return random;
-        }
-        return "";
-    }
-
-    function joinRoomHandler() {
-        if (!userName || !inputRoomCode) {
-            alert("Please enter your name and room code.");
-            return;
-        }
-        const randomId = randomStringGen();
-        navigate("/chat", {
-            state: {
-                roomCode: inputRoomCode,
-                userName: userName,
-                userId: userName + randomId,
-            },
-        });
-    }
-
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(roomCode);
-        } catch (err) {
-            console.log("Failed to copy text.", err);
-        }
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      joinRoomHandler();
-    }
-  };
-
 
     return (
         <div className="h-screen flex justify-center items-center bg-black text-white px-4">
@@ -74,12 +31,7 @@ export const ChatSection = () => {
                 </p>
 
                 <div className="mt-6">
-                    <button
-                        className="w-full text-black bg-white p-3 rounded-md font-bold hover:bg-white/90 transition"
-                        onClick={createRoomCode}
-                    >
-                        Create New Room
-                    </button>
+                    <CreateRoomCodeButton />
                 </div>
 
                 <div className="mt-8 space-y-3">
@@ -102,12 +54,7 @@ export const ChatSection = () => {
                             onKeyDown={handleKeyDown}
                             required
                         />
-                        <button
-                            className="text-black bg-white px-4 rounded-md font-bold hover:bg-white/90 transition"
-                            onClick={joinRoomHandler}
-                        >
-                            Join
-                        </button>
+                        <JoinRoomHandler />
                     </div>
                 </div>
 
@@ -118,8 +65,8 @@ export const ChatSection = () => {
                         </p>
                         <div className="text-2xl text-white mt-2 flex items-center justify-between">
                             <span>{roomCode}</span>
-                            <button onClick={handleCopy} className="ml-2 hover:text-gray-300">
-                                <CopyIcon />
+                            <button className="ml-2 hover:text-gray-300">
+                                <HandleCopy />
                             </button>
                         </div>
                     </div>

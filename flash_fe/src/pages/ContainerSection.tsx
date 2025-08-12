@@ -1,17 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-
-interface ChatMessage {
-  personId: string;
-  personName: string;
-  message: string;
-  type: "chat" | "info" | "error";
-}
-
-interface TypingIndicator {
-  personName: string;
-  timestamp: number;
-}
+import { ChatMessage, TypingIndicator } from "../types/chat";
 
 export const ContainerSection = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,11 +53,14 @@ export const ContainerSection = () => {
         setMessages((prev) => [...prev, data]);
       } else if (data.type === "typing_start") {
         setTypingUsers((prev) => {
-          // Add user to typing list if not already present.
-          if (!prev.some((user) => user.personName === data.userName)) {
+          if (!prev.some((u) => u.personId === data.personId)) {
             return [
               ...prev,
-              { personId: data.personId, timestamp: Date.now() },
+              {
+                personId: data.personId,
+                personName: data.personName,
+                timestamp: Date.now(),
+              },
             ];
           }
           return prev;
