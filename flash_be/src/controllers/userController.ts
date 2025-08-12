@@ -55,10 +55,11 @@ export const handleMessage = (
       // Remove from typing users if typing
       if (typingUsers[roomId]?.[personId]) {
         delete typingUsers[roomId][personId];
-        broadcast(roomId, { type: "typing_stop", roomId, personName }, socket);
+        broadcast(roomId, { type: "typing_stop", roomId, personName, personId }, socket);
       }
 
-      broadcast(roomId, { type: "chat", message, roomId, personName });
+      // Include personId so clients can align bubbles correctly
+      broadcast(roomId, { type: "chat", message, roomId, personName, personId });
       break;
 
     case "typing_start":
@@ -66,14 +67,14 @@ export const handleMessage = (
       typingUsers[roomId][personId] = true;
 
       log(`${personName} started typing in ${roomId}`);
-      broadcast(roomId, { type: "typing_start", roomId, personName }, socket);
+      broadcast(roomId, { type: "typing_start", roomId, personName, personId }, socket);
       break;
 
     case "typing_stop":
       if (typingUsers[roomId]?.[personId]) {
         delete typingUsers[roomId][personId];
         log(`${personName} stopped typing in ${roomId}`);
-        broadcast(roomId, { type: "typing_stop", roomId, personName }, socket);
+        broadcast(roomId, { type: "typing_stop", roomId, personName, personId }, socket);
       }
       break;
 
@@ -100,7 +101,7 @@ export const handleDisconnect = (
   // Handle typing status
   if (typingUsers[roomId]?.[personId]) {
     delete typingUsers[roomId][personId];
-    broadcast(roomId, { type: "typing_stop", roomId, personName }, socket);
+    broadcast(roomId, { type: "typing_stop", roomId, personName, personId }, socket);
   }
 
   log(`${personName} disconnected from ${roomId}`);

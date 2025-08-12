@@ -36,9 +36,13 @@ export default function ContainerSection () {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const lastMessageCountRef = useRef<number>(0);
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, typingUsers]);
+    if (messages.length !== lastMessageCountRef.current) {
+      lastMessageCountRef.current = messages.length;
+      scrollToBottom();
+    }
+  }, [messages]);
 
   const sendHandler = () => {
     const value = inputRef.current?.value?.trim();
