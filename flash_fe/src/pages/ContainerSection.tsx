@@ -62,11 +62,11 @@ export default function ContainerSection () {
 
   return (
     <div className="h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white font-inter p-4">
-      <div className="flex flex-col border border-gray-700/50 min-h-[600px] w-full max-w-2xl rounded-2xl bg-gray-800/50 backdrop-blur-sm shadow-2xl overflow-hidden">
+      <div className="flex flex-col border border-gray-700/50 max-h-[800px] w-full max-w-2xl rounded-2xl bg-gray-800/50 backdrop-blur-sm shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700/50 bg-gray-800/30">
           <div>
-            <h2 className="font-bold text-lg">Room: <span className="font-mono text-blue-400">{roomCode}</span></h2>
+            <h2 className="font-bold text-lg">Room: <span className="font-mono text-gray-400">{roomCode}</span></h2>
             <p className="text-sm text-gray-400">Logged in as {userName}</p>
           </div>
           <div className="flex items-center gap-4">
@@ -115,12 +115,12 @@ export default function ContainerSection () {
               }}
               onChange={handleTyping}
               disabled={connectionStatus !== 'connected'}
-              className="flex-grow p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-grow p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
               onClick={sendHandler}
               disabled={connectionStatus !== 'connected'}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
+              className="bg-white hover:to-gray-300 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-black px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
             >
               Send
             </button>

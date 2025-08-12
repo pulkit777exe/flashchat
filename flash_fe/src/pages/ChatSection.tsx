@@ -126,7 +126,7 @@ export default function ChatSection () {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 text-2xl font-bold mb-2">
             <ChatIcon />
-            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
               FlashChat
             </span>
           </div>
@@ -139,8 +139,8 @@ export default function ChatSection () {
         {notification && (
           <div className={`mb-6 p-4 rounded-lg text-sm border ${
             notification.type === 'success' 
-              ? 'bg-green-600/20 text-green-300 border-green-600/30' 
-              : 'bg-red-600/20 text-red-300 border-red-600/30'
+              ? 'bg-gray-600/20 text-gray-300 border-gray-600/30' 
+              : 'bg-gray-600/20 text-gray-300 border-gray-600/30'
           }`}>
             <div className="flex items-center gap-2">
               <span>{notification.type === 'success' ? '✅' : '❌'}</span>
@@ -165,7 +165,7 @@ export default function ChatSection () {
             onKeyDown={(e) => handleKeyPress(e, 'create')}
             className={`w-full border ${
               errors.userName ? 'border-red-500' : 'border-gray-600'
-            } p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
+            } p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all`}
             maxLength={20}
             autoComplete="name"
           />
@@ -182,7 +182,7 @@ export default function ChatSection () {
           <button
             onClick={handleCreateRoom}
             disabled={isLoading || !userName.trim()}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white p-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
+            className="w-full bg-white hover:bg-gray-300 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-black p-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
           >
             {isLoading ? (
               <div className="flex items-center justify-center gap-2">
@@ -227,7 +227,7 @@ export default function ChatSection () {
               <button
                 onClick={handleJoinRoom}
                 disabled={isLoading || !userName.trim() || !inputRoomCode.trim()}
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
+                className="bg-white hover:gray-300 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-black px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -247,8 +247,8 @@ export default function ChatSection () {
 
         {/* Room Created Display */}
         {roomOpen && roomCode && (
-          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 mt-8 p-4 rounded-xl border border-blue-600/30 backdrop-blur-sm">
-            <p className="text-sm text-blue-200 mb-3 text-center">
+          <div className="bg-gradient-to-r from-gray-50/20 to-gray-600/20 mt-8 p-4 rounded-xl border border-gray-600/30 backdrop-blur-sm">
+            <p className="text-sm text-gray-200 mb-3 text-center">
               🎉 Room created successfully! Share this code with others:
             </p>
             <div className="flex items-center justify-between bg-gray-900/50 p-4 rounded-lg mb-4 border border-gray-600/50">
@@ -259,7 +259,7 @@ export default function ChatSection () {
             </div>
             <button
               onClick={navigateToCreatedRoom}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-lg transition-all duration-300 font-semibold hover:shadow-lg hover:scale-[1.02]"
+              className="w-full bg-white hover:bg-gray-300 text-black py-3 px-4 rounded-lg transition-all duration-300 font-semibold hover:shadow-lg hover:scale-[1.01]"
             >
               Enter Room →
             </button>

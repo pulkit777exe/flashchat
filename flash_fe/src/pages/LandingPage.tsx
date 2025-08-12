@@ -12,7 +12,7 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="flex items-center justify-between px-10 py-6 z-10 relative">
         <div className="flex items-center gap-3">
-          <span className="text-xl font-bold text-blue-400">
+          <span className="text-xl font-bold text-white">
             FlashChat
           </span>
         </div>
@@ -29,9 +29,9 @@ export default function LandingPage() {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-full h-full">
           {/* Animated gradient blobs */}
-          <div className="absolute top-20 left-20 w-72 h-72 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-20 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-gray-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-grey-700 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-32 left-20 w-72 h-72 bg-gray-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
         </div>
         
         {/* Grid pattern */}
@@ -41,21 +41,21 @@ export default function LandingPage() {
       {/* Hero Content */}
       <div className="relative z-10 px-6 md:px-14 pt-20 md:pt-32 max-w-4xl mx-auto text-center">
         <div className="space-y-6">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-600/10 border border-blue-600/20 rounded-full text-blue-400 text-sm font-medium">
+          <div className="inline-flex items-center px-4 py-2 bg-gray-600/10 border border-gray-600/20 rounded-full text-white text-sm font-medium">
             ✨ Real-time messaging made simple
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-gray-400 to-gray-300 bg-clip-text text-transparent">
               Flash
             </span>
             <br />
-            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-gray-600 via-white to-gray-500 bg-clip-text text-transparent">
               Chat
             </span>
           </h1>
           
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="text-gray-400 text-md md:text-lg max-w-2xl mx-auto leading-relaxed">
             Connect instantly with temporary chat rooms. No accounts, no hassle. 
             Just create a room and start chatting with anyone, anywhere.
           </p>
@@ -63,15 +63,15 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
             <button 
               onClick={navigateToChat}
-              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-bold text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1"
+              className="group relative px-8 py-4 bg-white rounded-full font-bold text-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-102 hover:-translate-y-1"
             >
-              <span className="relative z-10">Start Chatting Now</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur"></div>
+              <span className="relative z-10 text-black">Start Chatting Now</span>
+              <div className="absolute inset-0 bg-gray-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur"></div>
             </button>
             
             <div className="flex items-center gap-4 text-sm text-gray-500">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 <span>No Login required</span>
               </div>
             </div>
