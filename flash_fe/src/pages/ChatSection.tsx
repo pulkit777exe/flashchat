@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,7 +10,7 @@ import { ChatIcon } from '../icons/ChatIcon';
 import { validateRoomCode, validateUserName } from '../utils/validation';
 import { generateRoomCode } from '../utils/roomCodeGenerator';
 
-export const ChatSection: React.FC = () => {
+export default function ChatSection () {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<{ userName?: string; roomCode?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -177,7 +177,7 @@ export const ChatSection: React.FC = () => {
               setUserName(e.target.value);
               setErrors(prev => ({ ...prev, userName: undefined }));
             }}
-            onKeyPress={(e) => handleKeyPress(e, 'create')}
+            onKeyDown={(e) => handleKeyPress(e, 'create')}
             className={`w-full border ${
               errors.userName ? 'border-red-500' : 'border-gray-600'
             } p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
@@ -232,7 +232,7 @@ export const ChatSection: React.FC = () => {
                   setInputRoomCode(e.target.value.toUpperCase());
                   setErrors(prev => ({ ...prev, roomCode: undefined }));
                 }}
-                onKeyPress={(e) => handleKeyPress(e, 'join')}
+                onKeyDown={(e) => handleKeyPress(e, 'join')}
                 className={`flex-1 border ${
                   errors.roomCode ? 'border-red-500' : 'border-gray-600'
                 } p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all font-mono tracking-wider`}

@@ -8,9 +8,5 @@ export const validateUserName = (name: string): boolean => {
 };
 
 export const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/[<>\"']/g, '');
+  return input.trim().replace(/[<>"']/g, '');
 };
-
-export const generateRoomCode = (): string => {
-    
-}

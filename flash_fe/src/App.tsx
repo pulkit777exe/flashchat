@@ -1,12 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
 import LandingPage from './pages/LandingPage';
-import { ChatSection } from './pages/ChatSection';
-import { ContainerSection } from './pages/ContainerSection';
+import ChatSection from './pages/ChatSection';
+import ContainerSection from './pages/ContainerSection';
 
 function App() {
   return (
-    <RecoilRoot>
       <div>
         <BrowserRouter>
           <Routes>
@@ -16,7 +14,6 @@ function App() {
           </Routes>
         </BrowserRouter>
       </div>
-    </RecoilRoot>
   );
 }
 

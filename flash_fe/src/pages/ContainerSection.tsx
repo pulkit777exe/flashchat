@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChatMessage, TypingIndicator, TimeoutId } from "../types/chat";
+import { ChatMessage } from "../types/chat";
+import { useWebSocket } from "../hooks/useWebSocket";
+import { useTypingIndicator } from "../hooks/useTypingIndicator";
+import { TypingIndicatorComponent } from "../components/TypingIndicator";
+import { MessageBubble } from "../components/MessageBubble";
 
-export const ContainerSection = () => {
+export default function ContainerSection () {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [typingUsers, setTypingUsers] = useState<TypingIndicator[]>([]);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -21,186 +21,33 @@ export const ContainerSection = () => {
     }
   }, [roomCode, userName, userId, navigate]);
 
+  const {
+    messages,
+    typingUsers,
+    connectionStatus,
+    sendMessage,
+    sendTypingIndicator,
+  } = useWebSocket({ roomCode, userName, userId });
+
+  const { handleTyping, stopTyping } = useTypingIndicator(sendTypingIndicator);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
-    if (!roomCode || !userName || !userId) return;
-
-    setConnectionStatus('connecting');
-
-    const VITE_WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
-    const VITE_WEBSOCKET_PORT = import.meta.env.VITE_WEBSOCKET_PORT;
-    
-    let url: string;
-    if (VITE_WEBSOCKET_URL && VITE_WEBSOCKET_PORT) {
-      url = `${VITE_WEBSOCKET_URL}:${VITE_WEBSOCKET_PORT}`;
-    } else {
-      url = "ws://localhost:8080";
-      console.warn("Using default WebSocket URL. Set environment variables for production.");
-    }
-
-    console.log("Connecting to WebSocket server at", url);
-    
-    try {
-      const ws = new WebSocket(url);
-
-      ws.onopen = () => {
-        console.log("Connected to server");
-        setConnectionStatus('connected');
-        ws.send(
-          JSON.stringify({
-            type: "join",
-            roomId: roomCode,
-            personName: userName,
-            personId: userId,
-          })
-        );
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === "chat" || data.type === "info") {
-            setMessages((prev) => [...prev, {
-              ...data,
-              id: data.id || `${data.personId}-${Date.now()}`,
-              timestamp: data.timestamp || Date.now()
-            }]);
-          } else if (data.type === "typing_start") {
-            setTypingUsers((prev) => {
-              if (!prev.some((u) => u.personId === data.personId)) {
-                return [
-                  ...prev,
-                  {
-                    personId: data.personId,
-                    personName: data.personName,
-                    timestamp: Date.now(),
-                  },
-                ];
-              }
-              return prev;
-            });
-          } else if (data.type === "typing_stop") {
-            setTypingUsers((prev) =>
-              prev.filter((user) => 
-                user.personId !== data.personId && 
-                user.personName !== data.userName
-              )
-            );
-          }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        setConnectionStatus('disconnected');
-      };
-
-      ws.onclose = (event) => {
-        console.log("WebSocket closed:", event.code, event.reason);
-        setConnectionStatus('disconnected');
-      };
-
-      setSocket(ws);
-
-      return () => {
-        ws.close();
-      };
-    } catch (error) {
-      console.error("Failed to create WebSocket connection:", error);
-      setConnectionStatus('disconnected');
-    }
-  }, [roomCode, userName, userId, navigate]);
-
-  useEffect(() => {
     scrollToBottom();
   }, [messages, typingUsers]);
 
-  const typingTimeoutRef = useRef<TimeoutId | null>(null);
-
-  const handleInputChange = () => {
-    if (!socket || socket.readyState !== WebSocket.OPEN) return;
-
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    } else {
-      socket.send(
-        JSON.stringify({
-          type: "typing_start",
-          roomId: roomCode,
-          personName: userName,
-          personId: userId,
-        })
-      );
-    }
-
-    typingTimeoutRef.current = setTimeout(() => {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(
-          JSON.stringify({
-            type: "typing_stop",
-            roomId: roomCode,
-            personName: userName,
-            personId: userId,
-          })
-        );
-      }
-      typingTimeoutRef.current = null;
-    }, 1500);
-  };
-
   const sendHandler = () => {
     const value = inputRef.current?.value?.trim();
+    if (!value) return;
 
-    if (!value || !socket || socket.readyState !== WebSocket.OPEN) return;
-
-    socket.send(
-      JSON.stringify({
-        type: "chat",
-        message: value,
-        roomId: roomCode,
-        personName: userName,
-        personId: userId,
-      })
-    );
-
-    if (inputRef.current) {
+    const sent = sendMessage(value);
+    if (sent && inputRef.current) {
       inputRef.current.value = "";
     }
-
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = null;
-    }
-
-    socket.send(
-      JSON.stringify({
-        type: "typing_stop",
-        roomId: roomCode,
-        personName: userName,
-        personId: userId,
-      })
-    );
-  };
-
-  const otherTypingUsers = typingUsers.filter(
-    (user) => user.personName !== userName
-  );
-
-  const getTypingIndicatorText = () => {
-    const count = otherTypingUsers.length;
-    if (count === 0) return null;
-    if (count === 1) return `${otherTypingUsers[0].personName} is typing...`;
-    if (count === 2)
-      return `${otherTypingUsers[0].personName} and ${otherTypingUsers[1].personName} are typing...`;
-    return `${otherTypingUsers[0].personName} + ${count - 1} other${
-      count - 1 > 1 ? "s" : ""
-    } are typing...`;
+    stopTyping();
   };
 
   const getStatusColor = () => {
@@ -248,43 +95,15 @@ export const ContainerSection = () => {
               <p className="text-sm mt-1">Start the conversation by sending a message.</p>
             </div>
           ) : (
-            messages.map((msg, idx) => (
-              <div
+            messages.map((msg: ChatMessage, idx: number) => (
+              <MessageBubble
                 key={msg.id || idx}
-                className={`p-3 rounded-lg max-w-[80%] ${
-                  msg.type === "chat"
-                    ? msg.personId === userId
-                      ? "bg-blue-600 text-white self-end rounded-br-none ml-auto"
-                      : "bg-gray-700 text-white self-start rounded-bl-none mr-auto"
-                    : "text-gray-400 self-center text-sm italic"
-                } ${msg.type === "info" ? "text-center w-full" : ""}`}
-              >
-                {msg.type === "chat" && (
-                  <div>
-                    {msg.personId !== userId && (
-                      <div className="text-xs text-gray-300 mb-1 font-medium">
-                        {msg.personName}
-                      </div>
-                    )}
-                    <div className="break-words">{msg.message}</div>
-                  </div>
-                )}
-                {msg.type === "info" && <span>{msg.message}</span>}
-              </div>
+                message={msg}
+                isCurrentUser={msg.personId === userId}
+              />
             ))
           )}
-          {getTypingIndicatorText() && (
-            <div className="self-start text-gray-400 text-sm italic mt-2">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                </div>
-                <span>{getTypingIndicatorText()}</span>
-              </div>
-            </div>
-          )}
+          <TypingIndicatorComponent typingUsers={typingUsers} currentUserName={userName} />
           <div ref={messagesEndRef} />
         </div>
 
@@ -301,7 +120,7 @@ export const ContainerSection = () => {
                   sendHandler();
                 }
               }}
-              onChange={handleInputChange}
+              onChange={handleTyping}
               disabled={connectionStatus !== 'connected'}
               className="flex-grow p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             />
