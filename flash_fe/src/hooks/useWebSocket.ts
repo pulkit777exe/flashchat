@@ -24,11 +24,15 @@ export const useWebSocket = ({
     "connecting" | "connected" | "disconnected"
   >("connecting");
 
-  // Fix: Use TimeoutId instead of number
   const reconnectTimeoutRef = useRef<TimeoutId | null>(null);
   const reconnectAttemptsRef = useRef(0);
+  const socketRef = useRef<WebSocket | null>(null);
 
-  const connect = useCallback(() => {
+  const connect = useCallback((): WebSocket | null => {
+    if (!roomCode || !userName || !userId) return null;
+
+    setConnectionStatus("connecting");
+
     const WEBSOCKET_URL =
       import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:8080";
 
@@ -40,7 +44,6 @@ export const useWebSocket = ({
         setConnectionStatus("connected");
         reconnectAttemptsRef.current = 0;
 
-        // Send join message
         ws.send(
           JSON.stringify({
             type: "join",
@@ -61,8 +64,8 @@ export const useWebSocket = ({
               setMessages((prev) => [
                 ...prev,
                 {
-                  id: `${data.personId}-${Date.now()}`,
-                  type: data.type as "chat" | "info", // ensure it's narrowed
+                  id: `${data.personId || "system"}-${Date.now()}`,
+                  type: data.type as "chat" | "info",
                   message: data.message || "",
                   personName: data.personName || "",
                   personId: data.personId || "",
@@ -91,7 +94,6 @@ export const useWebSocket = ({
               break;
 
             case "typing_stop":
-              // Handle both personId and userName for backward compatibility
               setTypingUsers((prev) =>
                 prev.filter(
                   (user) =>
@@ -115,7 +117,6 @@ export const useWebSocket = ({
         console.log("WebSocket closed:", event.code, event.reason);
         setConnectionStatus("disconnected");
 
-        // Implement reconnection logic
         if (!event.wasClean && reconnectAttemptsRef.current < 5) {
           const timeout = Math.min(
             1000 * Math.pow(2, reconnectAttemptsRef.current),
@@ -129,27 +130,30 @@ export const useWebSocket = ({
       };
 
       setSocket(ws);
+      socketRef.current = ws;
+      return ws;
     } catch (error) {
       console.error("Failed to create WebSocket connection:", error);
       setConnectionStatus("disconnected");
+      return null;
     }
   }, [roomCode, userName, userId]);
 
   useEffect(() => {
-    if (roomCode && userName && userId) {
-      connect();
-    }
+    const ws = connect();
 
     return () => {
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
-      // Close socket if it exists
-      if (socket) {
-        socket.close();
+      try {
+        (ws || socketRef.current)?.close();
+      } catch (e) {
+        console.debug("WebSocket close during cleanup failed", e);
       }
     };
-  }, [connect, roomCode, userName, userId, socket]);
+  }, [connect]);
 
   const sendMessage = useCallback(
     (message: string) => {
@@ -186,13 +190,10 @@ export const useWebSocket = ({
     [socket, roomCode, userName, userId]
   );
 
-  // Cleanup typing indicators older than 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-      setTypingUsers((prev) =>
-        prev.filter((user) => now - user.timestamp < 5000)
-      );
+      setTypingUsers((prev) => prev.filter((user) => now - user.timestamp < 5000));
     }, 1000);
 
     return () => clearInterval(interval);
