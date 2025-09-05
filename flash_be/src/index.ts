@@ -5,10 +5,10 @@ import { log } from "./utils/logger";
 
 dotenv.config();
 
-const PORT = Number(process.env.NODE_WEBSOCKET_PORT) || 8080;
-// const HOST = process.env.NODE_BACKEND_URL || "localhost";
+const PORT = Number(process.env.NODE_WEBSOCKET_PORT);
+const HOST = process.env.NODE_BACKEND_URL;
 
-const HOST = "localhost";
+// const HOST = "localhost";
 console.log(HOST);
 console.log(PORT);
 

@@ -138,9 +138,9 @@ export default function ChatSection () {
         {/* Notifications */}
         {notification && (
           <div className={`mb-6 p-4 rounded-lg text-sm border ${
-            notification.type === 'success' 
-              ? 'bg-gray-600/20 text-gray-300 border-gray-600/30' 
-              : 'bg-gray-600/20 text-gray-300 border-gray-600/30'
+            notification.type === 'success'
+              ? 'bg-green-600/20 text-green-300 border-green-600/30'
+              : 'bg-red-600/20 text-red-300 border-red-600/30'
           }`}>
             <div className="flex items-center gap-2">
               <span>{notification.type === 'success' ? '✅' : '❌'}</span>

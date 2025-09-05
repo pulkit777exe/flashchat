@@ -29,22 +29,30 @@ export const handleMessage = (
 
   switch (type) {
     case "join":
+      // Check if socket is already in the room to avoid duplicate join
+      if (context.currentRoomId === roomId && context.currentPersonId === personId) {
+        warn(`${personName} tried to join ${roomId} twice`);
+        socket.send(JSON.stringify({ type: "error", message: "Already joined this room" }));
+        return;
+      }
+
       context.currentRoomId = roomId;
       context.currentPersonName = personName;
       context.currentPersonId = personId;
 
       if (!allSockets[roomId]) allSockets[roomId] = [];
-      allSockets[roomId].push(socket);
+      if (!allSockets[roomId].includes(socket)) {
+        allSockets[roomId].push(socket);
 
-      log(`${personName} joined ${roomId}`);
+        log(`${personName} joined ${roomId}`);
 
-      socket.send(JSON.stringify({ type: "info", message: `You joined ${roomId}` }));
+        socket.send(JSON.stringify({ type: "info", message: `You joined ${roomId}` }));
 
-      broadcast(roomId, {
-        type: "info",
-        message: `${personName} has joined the room.`,
-      }, socket);
-
+        broadcast(roomId, {
+          type: "info",
+          message: `${personName} has joined the room.`,
+        }, socket);
+      }
       break;
 
     case "chat":
@@ -58,7 +66,6 @@ export const handleMessage = (
         broadcast(roomId, { type: "typing_stop", roomId, personName, personId }, socket);
       }
 
-      // Include personId so clients can align bubbles correctly
       broadcast(roomId, { type: "chat", message, roomId, personName, personId });
       break;
 
