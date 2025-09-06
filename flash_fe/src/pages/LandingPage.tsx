@@ -45,7 +45,7 @@ export default function LandingPage() {
             ✨ Real-time messaging made simple
           </div>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight">
+          <h1 className="text-6xl md:text-6xl lg:text-7xl font-black leading-tight">
             <span className="bg-gradient-to-r from-white via-gray-400 to-gray-300 bg-clip-text text-transparent">
               Flash
             </span>
