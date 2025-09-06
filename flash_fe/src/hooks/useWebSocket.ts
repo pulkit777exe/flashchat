@@ -34,13 +34,13 @@ export const useWebSocket = ({
     setConnectionStatus("connecting");
 
     const configuredUrl = import.meta.env.VITE_WEBSOCKET_URL as string | undefined;
-    const configuredPort = import.meta.env.VITE_WEBSOCKET_PORT as string | undefined;
-    const WEBSOCKET_URL = configuredUrl && configuredPort
-      ? `${configuredUrl}:${configuredPort}`
-      : configuredUrl || "ws://localhost:8080";
+    // const configuredPort = import.meta.env.VITE_WEBSOCKET_PORT as string | undefined;
+    // const WEBSOCKET_URL = configuredUrl && configuredPort
+    //   ? `${configuredUrl}:${configuredPort}`
+    //   : configuredUrl || "ws://localhost:8080";
 
     try {
-      const ws = new WebSocket(WEBSOCKET_URL);
+      const ws = new WebSocket(configuredUrl!);
 
       ws.onopen = () => {
         console.log("Connected to WebSocket server");
