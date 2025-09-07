@@ -1,4 +1,3 @@
-do state management
 # Flash Chat 💬
 
 A real-time chat application built with WebSockets, focusing on seamless frontend experience and efficient real-time communication.
@@ -10,7 +9,7 @@ Flash Chat is a WebSocket-based real-time messaging application. The primary cha
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v14 or higher)
+- Node.js (v22 or higher)
 - npm or yarn
 
 ### Installation & Setup
@@ -49,10 +48,8 @@ flashchat/
 
 - ✅ Real-time messaging via WebSockets
 - ✅ Typing indicators
-- 🔄 User authentication & authorization
+- ✅ User presence indicators
 - 🔄 GIF integration
-- 🔄 Message history persistence
-- 🔄 User presence indicators
 - 🔄 File/image sharing
 - 🔄 Message reactions/emojis
 
@@ -67,20 +64,12 @@ flashchat/
 ### 🎨 User Experience
 - [x] **Typing indicators** - Show when users are typing
 - [ ] **GIF integration** - Add GIPHY API support for sending GIFs
-- [ ] Message read receipts
-- [ ] Dark/light theme toggle
+- [ ] Message read receipts\
 - [ ] Sound notifications
 
 ### 📱 Features & Functionality
 - [ ] Message editing and deletion
-- [ ] File upload and sharing
-- [ ] Message history pagination
-
-### 🚀 Performance & Scalability
-- [ ] Message caching with Redis
-- [ ] Connection pooling optimization
-- [ ] Mobile responsiveness improvements
-- [ ] Progressive Web App (PWA) features
+- [ ] File upload and sharing\
 
 ### 🧪 Development & Testing
 - [ ] Unit tests for components
@@ -112,7 +101,5 @@ Feel free to contribute to this project! Please create an issue first to discuss
 - Frontend: `pnpm run dev`, `pnpm run build`, `pnpm run lint`
 
 ## Roadmap
-- Message history and persistence
-- Presence indicators
 - File/image sharing
 - Tests (unit/integration)
