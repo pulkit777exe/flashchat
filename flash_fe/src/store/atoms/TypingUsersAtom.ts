@@ -1,7 +1,8 @@
-import { atom } from "recoil";
-import { TypingIndicator } from "../../types/chat";
+// store/atoms/TypingUsersAtom.ts
+import { atom } from 'recoil';
+import { TypingUser } from '../../types/chat'; // Fixed: Use TypingUser instead of TypingIndicator
 
-export const TypingUsersAtom = atom<TypingIndicator[]>({
-  key: "TypingUsers",
-  default: []
+export const TypingUsersAtom = atom<TypingUser[]>({
+  key: 'TypingUsersAtom',
+  default: [],
 });

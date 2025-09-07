@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useRef } from "react";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import {
-  WebSocketAtom,
   MessagesAtom,
   TypingUsersAtom,
   ConnectionStatusAtom
@@ -44,7 +43,12 @@ class WebSocketConnectionManager {
     return WebSocketConnectionManager.instance;
   }
 
-  subscribe(subscriber: any) {
+  subscribe(subscriber: {
+    onStatusChange: (status: 'disconnected' | 'connecting' | 'connected') => void;
+    onMessage: (message: ChatMessage) => void;
+    onTypingStart: (user: { personId: string; personName: string; timestamp: number }) => void;
+    onTypingStop: (personId: string) => void;
+  }) {
     this.subscribers.add(subscriber);
     return () => {
       this.subscribers.delete(subscriber);
@@ -310,7 +314,7 @@ class WebSocketConnectionManager {
 }
 
 export const useWebSocketManager = () => {
-  const [socket, setSocket] = useRecoilState(WebSocketAtom);
+  // const [socket, setSocket] = useRecoilState(WebSocketAtom);
   const setMessages = useSetRecoilState(MessagesAtom);
   const setTypingUsers = useSetRecoilState(TypingUsersAtom);
   const setConnectionStatus = useSetRecoilState(ConnectionStatusAtom);
