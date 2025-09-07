@@ -185,11 +185,10 @@ class WebSocketConnectionManager {
     this.notifyStatusChange("connecting");
 
     const configuredUrl = import.meta.env.VITE_WEBSOCKET_URL as string | undefined;
-    const WEBSOCKET_URL = configuredUrl || "ws://localhost:8080";
 
     try {
-      console.log(`Connecting to WebSocket: ${WEBSOCKET_URL}`);
-      const ws = new WebSocket(WEBSOCKET_URL);
+      console.log(`Connecting to WebSocket: ${configuredUrl}`);
+      const ws = new WebSocket(configuredUrl!);
 
       ws.onopen = () => {
         console.log("WebSocket connection established");
