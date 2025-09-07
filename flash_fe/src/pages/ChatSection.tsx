@@ -2,10 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { v4 as uuidv4 } from 'uuid';
-import { UserNameAtom } from '../store/atoms/UserNameAtom';
-import { InputRoomCodeAtom } from '../store/atoms/InputRoomCodeAtom';
-import { RoomCode } from '../store/atoms/RoomCodeAtom';
-import { RoomOpenAtom } from '../store/atoms/RoomOpenAtom';
+import { 
+  UserNameAtom, 
+  UserIdAtom,
+  InputRoomCodeAtom, 
+  RoomCode, 
+  RoomOpenAtom,
+  MessagesAtom,
+  TypingUsersAtom,
+  ConnectionStatusAtom 
+} from '../store/atoms';
 import { ChatIcon } from '../icons/ChatIcon';
 import { validateRoomCode, validateUserName } from '../utils/validation';
 import { generateRoomCode } from '../utils/roomCodeGenerator';
@@ -19,12 +25,34 @@ export default function ChatSection () {
 
   const userName = useRecoilValue(UserNameAtom);
   const setUserName = useSetRecoilState(UserNameAtom);
+  const userId = useRecoilValue(UserIdAtom);
+  const setUserId = useSetRecoilState(UserIdAtom);
   const roomCode = useRecoilValue(RoomCode);
   const setRoomCode = useSetRecoilState(RoomCode);
   const inputRoomCode = useRecoilValue(InputRoomCodeAtom);
   const setInputRoomCode = useSetRecoilState(InputRoomCodeAtom);
   const roomOpen = useRecoilValue(RoomOpenAtom);
   const setRoomOpen = useSetRecoilState(RoomOpenAtom);
+
+  // Reset chat state when component mounts
+  const setMessages = useSetRecoilState(MessagesAtom);
+  const setTypingUsers = useSetRecoilState(TypingUsersAtom);
+  const setConnectionStatus = useSetRecoilState(ConnectionStatusAtom);
+
+  useEffect(() => {
+    console.log('ChatSection mounted');
+    // Generate userId if not exists
+    if (!userId) {
+      const newUserId = uuidv4();
+      console.log('Generated new userId:', newUserId);
+      setUserId(newUserId);
+    }
+    
+    // Reset chat state
+    setMessages([]);
+    setTypingUsers([]);
+    setConnectionStatus("disconnected");
+  }, [userId, setUserId, setMessages, setTypingUsers, setConnectionStatus]);
 
   // Auto-clear notifications
   useEffect(() => {
@@ -35,6 +63,8 @@ export default function ChatSection () {
   }, [notification]);
 
   const handleCreateRoom = async () => {
+    console.log('Creating room with userName:', userName);
+    
     if (!validateUserName(userName)) {
       setErrors({ userName: 'Name must be 2-20 characters long and contain only letters, numbers, and spaces' });
       return;
@@ -45,14 +75,27 @@ export default function ChatSection () {
 
     try {
       const newRoomCode = generateRoomCode();
+      console.log('Generated room code:', newRoomCode);
       setRoomCode(newRoomCode);
       setRoomOpen(true);
       setNotification({
         type: 'success',
-        message: `Room ${newRoomCode} created successfully!`
+        message: 'Room created successfully! Share the room code with others.'
       });
+      
+      setTimeout(() => {
+        const currentUserId = userId || uuidv4();
+        console.log('Navigating to chat with:', { roomCode: newRoomCode, userName, userId: currentUserId });
+        navigate('/chat', { 
+          state: { 
+            roomCode: newRoomCode, 
+            userName, 
+            userId: currentUserId
+          } 
+        });
+      }, 500);
     } catch (error) {
-      console.error('Failed to create room:', error);
+      console.error('Error creating room:', error);
       setNotification({
         type: 'error',
         message: 'Failed to create room. Please try again.'
@@ -63,18 +106,20 @@ export default function ChatSection () {
   };
 
   const handleJoinRoom = async () => {
-    const newErrors: { userName?: string; roomCode?: string } = {};
+    console.log('Joining room with:', { userName, inputRoomCode });
+    
+    const validationErrors: { userName?: string; roomCode?: string } = {};
 
     if (!validateUserName(userName)) {
-      newErrors.userName = 'Name must be 2-20 characters long and contain only letters, numbers, and spaces';
+      validationErrors.userName = 'Name must be 2-20 characters long and contain only letters, numbers, and spaces';
     }
 
     if (!validateRoomCode(inputRoomCode)) {
-      newErrors.roomCode = 'Room code must be exactly 6 characters (letters and numbers only)';
+      validationErrors.roomCode = 'Room code must be exactly 6 characters long and contain only letters and numbers';
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -82,195 +127,179 @@ export default function ChatSection () {
     setErrors({});
 
     try {
-      // Navigate to chat room
-      navigate('/chat', {
-        state: {
-          roomCode: inputRoomCode.toUpperCase(),
-          userName: userName.trim(),
-          userId: uuidv4(),
-        },
+      setRoomCode(inputRoomCode);
+      setNotification({
+        type: 'success',
+        message: 'Joining room...'
       });
+      
+      setTimeout(() => {
+        const currentUserId = userId || uuidv4();
+        console.log('Navigating to chat with:', { roomCode: inputRoomCode, userName, userId: currentUserId });
+        navigate('/chat', { 
+          state: { 
+            roomCode: inputRoomCode, 
+            userName, 
+            userId: currentUserId
+          } 
+        });
+      }, 500);
     } catch (error) {
-      console.error('Failed to join room:', error);
-      setErrors({ roomCode: 'Failed to join room. Please try again.' });
+      console.error('Error joining room:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to join room. Please check the room code and try again.'
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const navigateToCreatedRoom = () => {
-    navigate('/chat', {
-      state: {
-        roomCode,
-        userName: userName.trim(),
-        userId: uuidv4(),
-      },
-    });
+  const handleNameChange = (value: string) => {
+    setUserName(value);
+    if (errors.userName) {
+      setErrors(prev => ({ ...prev, userName: undefined }));
+    }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent, action: 'create' | 'join') => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (action === 'create') {
-        handleCreateRoom();
-      } else {
-        handleJoinRoom();
-      }
+  const handleRoomCodeChange = (value: string) => {
+    const upperCaseValue = value.toUpperCase().slice(0, 6);
+    setInputRoomCode(upperCaseValue);
+    if (errors.roomCode) {
+      setErrors(prev => ({ ...prev, roomCode: undefined }));
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white px-4">
-      <div className="border border-gray-700/50 p-8 min-w-[360px] shadow-2xl rounded-2xl w-full max-w-md bg-gray-800/50 backdrop-blur-sm">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 text-2xl font-bold mb-2">
-            <ChatIcon />
-            <span className="bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
-              FlashChat
-            </span>
-          </div>
-          <p className="text-gray-400 text-sm">
-            Create a temporary room or join an existing one to start chatting.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-silver text-white flex items-center justify-center p-4">
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute w-full h-full">
+          <div className="absolute top-20 left-20 w-72 h-72 bg-silver/10 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-white/5 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-pulse animation-delay-2000"></div>
         </div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+      </div>
 
-        {/* Notifications */}
-        {notification && (
-          <div className={`mb-6 p-4 rounded-lg text-sm border ${
-            notification.type === 'success'
-              ? 'bg-green-600/20 text-green-300 border-green-600/30'
-              : 'bg-red-600/20 text-red-300 border-red-600/30'
-          }`}>
-            <div className="flex items-center gap-2">
-              <span>{notification.type === 'success' ? '✅' : '❌'}</span>
-              <span>{notification.message}</span>
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+          notification.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`}>
+          {notification.message}
+        </div>
+      )}
+
+      <div className="w-full max-w-md space-y-8 relative z-10">
+        {/* Header */}
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-silver/20 p-3 rounded-xl">
+              <ChatIcon className="w-8 h-8 text-white" />
             </div>
           </div>
-        )}
-
-        {/* User Name Input */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Your Name
-          </label>
-          <input
-            type="text"
-            placeholder="Enter your name..."
-            value={userName}
-            onChange={(e) => {
-              setUserName(e.target.value);
-              setErrors(prev => ({ ...prev, userName: undefined }));
-            }}
-            onKeyDown={(e) => handleKeyPress(e, 'create')}
-            className={`w-full border ${
-              errors.userName ? 'border-red-500' : 'border-gray-600'
-            } p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all`}
-            maxLength={20}
-            autoComplete="name"
-          />
-          {errors.userName && (
-            <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-              <span>⚠️</span>
-              {errors.userName}
-            </p>
-          )}
+          <h1 className="text-3xl font-bold text-white">Join FlashChat</h1>
+          <p className="text-gray-300 mt-2">Enter your name and room details</p>
         </div>
 
-        {/* Create Room */}
-        <div className="mb-6">
-          <button
-            onClick={handleCreateRoom}
-            disabled={isLoading || !userName.trim()}
-            className="w-full bg-white hover:bg-gray-300 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-black p-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Creating Room...
-              </div>
-            ) : (
-              'Create New Room'
-            )}
-          </button>
-        </div>
-
-        <div className="text-center text-gray-500 mb-6 relative">
-          <span className="bg-gray-800/50 px-4">or</span>
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-700"></div>
-          </div>
-        </div>
-
-        {/* Join Room */}
-        <div className="space-y-3">
+        {/* Form */}
+        <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-silver/20 space-y-6">
+          {/* Name Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Room Code
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+              Your Name
             </label>
-            <div className="flex gap-2">
+            <input
+              id="name"
+              type="text"
+              value={userName}
+              onChange={(e) => handleNameChange(e.target.value)}
+              placeholder="Enter your name"
+              className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
+                errors.userName 
+                  ? 'border-red-500 focus:ring-red-500' 
+                  : 'border-silver/30 focus:ring-silver/50'
+              }`}
+              disabled={isLoading}
+            />
+            {errors.userName && (
+              <p className="text-red-400 text-sm mt-1">{errors.userName}</p>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            {/* Create Room */}
+            <button
+              onClick={handleCreateRoom}
+              disabled={isLoading || !userName.trim()}
+              className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:bg-silver disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100"
+            >
+              {isLoading ? 'Creating...' : 'Create New Room'}
+            </button>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-silver/20"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-black/50 text-gray-400">or</span>
+              </div>
+            </div>
+
+            {/* Join Room Section */}
+            <div className="space-y-3">
+              <label htmlFor="roomCode" className="block text-sm font-medium text-gray-300">
+                Room Code
+              </label>
               <input
+                id="roomCode"
                 type="text"
-                placeholder="Enter 6-digit code..."
                 value={inputRoomCode}
-                onChange={(e) => {
-                  setInputRoomCode(e.target.value.toUpperCase());
-                  setErrors(prev => ({ ...prev, roomCode: undefined }));
-                }}
-                onKeyDown={(e) => handleKeyPress(e, 'join')}
-                className={`flex-1 border ${
-                  errors.roomCode ? 'border-red-500' : 'border-gray-600'
-                } p-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all font-mono tracking-wider`}
+                onChange={(e) => handleRoomCodeChange(e.target.value)}
+                placeholder="ABCD12"
+                className={`w-full px-4 py-3 bg-gray-800/50 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all font-mono tracking-wider ${
+                  errors.roomCode 
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-silver/30 focus:ring-silver/50'
+                }`}
+                disabled={isLoading}
                 maxLength={6}
-                autoComplete="off"
               />
+              {errors.roomCode && (
+                <p className="text-red-400 text-sm">{errors.roomCode}</p>
+              )}
+              
               <button
                 onClick={handleJoinRoom}
                 disabled={isLoading || !userName.trim() || !inputRoomCode.trim()}
-                className="bg-white hover:gray-300 disabled:from-gray-700 disabled:to-gray-700 disabled:cursor-not-allowed text-black px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:shadow-lg hover:scale-[1.02] disabled:hover:scale-100"
+                className="w-full bg-silver/20 text-white font-semibold py-3 rounded-lg hover:bg-silver/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100 border border-silver/30"
               >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  'Join'
-                )}
+                {isLoading ? 'Joining...' : 'Join Room'}
               </button>
             </div>
-            {errors.roomCode && (
-              <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                <span>⚠️</span>
-                {errors.roomCode}
-              </p>
-            )}
           </div>
+
+          {/* Show room code if room is created */}
+          {roomOpen && roomCode && (
+            <div className="mt-6 p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-400 font-medium">Room Created!</p>
+                  <p className="text-sm text-gray-300">Code: <span className="font-mono font-bold">{roomCode}</span></p>
+                </div>
+                <CopyRoomCodeButton roomCode={roomCode} />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Room Created Display */}
-        {roomOpen && roomCode && (
-          <div className="bg-gradient-to-r from-gray-50/20 to-gray-600/20 mt-8 p-4 rounded-xl border border-gray-600/30 backdrop-blur-sm">
-            <p className="text-sm text-gray-200 mb-3 text-center">
-              🎉 Room created successfully! Share this code with others:
-            </p>
-            <div className="flex items-center justify-between bg-gray-900/50 p-4 rounded-lg mb-4 border border-gray-600/50">
-              <span className="text-2xl font-mono text-white tracking-wider font-bold">
-                {roomCode}
-              </span>
-              <CopyRoomCodeButton roomCode={roomCode} />
-            </div>
-            <button
-              onClick={navigateToCreatedRoom}
-              className="w-full bg-white hover:bg-gray-300 text-black py-3 px-4 rounded-lg transition-all duration-300 font-semibold hover:shadow-lg hover:scale-[1.01]"
-            >
-              Enter Room →
-            </button>
-          </div>
-        )}
-
-        {/* Back to home link */}
-        <div className="mt-8 text-center">
+        {/* Back to Home */}
+        <div className="text-center">
           <button
             onClick={() => navigate('/')}
-            className="text-gray-400 hover:text-white text-sm transition-colors"
+            className="text-gray-400 hover:text-white transition-colors text-sm"
           >
             ← Back to Home
           </button>
@@ -278,4 +307,4 @@ export default function ChatSection () {
       </div>
     </div>
   );
-};
+}

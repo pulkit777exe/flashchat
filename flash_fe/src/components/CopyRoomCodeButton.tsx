@@ -14,7 +14,7 @@ interface CopyRoomCodeButtonProps {
 
 export const CopyRoomCodeButton: React.FC<CopyRoomCodeButtonProps> = ({
   roomCode: propRoomCode,
-  className = "text-blue-400 hover:text-blue-300 transition-colors p-2 rounded-md hover:bg-gray-700",
+  className = "text-silver hover:text-white transition-colors p-2 rounded-md hover:bg-silver/10",
   showText = false,
   onCopySuccess,
   onCopyError
@@ -71,4 +71,3 @@ export const CopyRoomCodeButton: React.FC<CopyRoomCodeButtonProps> = ({
     </div>
   );
 };
-

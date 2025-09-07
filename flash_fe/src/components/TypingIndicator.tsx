@@ -1,36 +1,57 @@
-import React from 'react';
-import { TypingIndicator } from '../types/chat';
+import { memo } from 'react';
+import { TypingUser } from '../types/chat';
 
 interface TypingIndicatorProps {
-  typingUsers: TypingIndicator[];
+  typingUsers: TypingUser[];
   currentUserName: string;
 }
 
-export const TypingIndicatorComponent: React.FC<TypingIndicatorProps> = ({ 
+// Animated typing dots component
+const TypingDots = memo(() => (
+  <div className="flex space-x-1 items-center">
+    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
+    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
+    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" />
+  </div>
+));
+
+// Format typing users text
+const formatTypingText = (users: TypingUser[]): string => {
+  const names = users.map(user => user.personName);
+  
+  if (names.length === 0) return '';
+  if (names.length === 1) return `${names[0]} is typing`;
+  if (names.length === 2) return `${names[0]} and ${names[1]} are typing`;
+  if (names.length === 3) return `${names[0]}, ${names[1]}, and ${names[2]} are typing`;
+  
+  return `${names.slice(0, 2).join(', ')}, and ${names.length - 2} others are typing`;
+};
+
+export const TypingIndicatorComponent = memo<TypingIndicatorProps>(({ 
   typingUsers, 
   currentUserName 
 }) => {
-  const otherTypingUsers = typingUsers.filter(user => user.personName !== currentUserName);
-  const count = otherTypingUsers.length;
+  // Filter out current user and ensure we have valid users
+  const validTypingUsers = typingUsers.filter(
+    user => user.personName !== currentUserName && 
+            user.personName && 
+            user.personId
+  );
 
-  if (count === 0) return null;
+  if (validTypingUsers.length === 0) {
+    return null;
+  }
 
-  const getTypingText = () => {
-    if (count === 1) return `${otherTypingUsers[0].personName} is typing...`;
-    if (count === 2) return `${otherTypingUsers[0].personName} and ${otherTypingUsers[1].personName} are typing...`;
-    return `${otherTypingUsers[0].personName} and ${count - 1} other${count - 1 > 1 ? 's' : ''} are typing...`;
-  };
+  const typingText = formatTypingText(validTypingUsers);
 
   return (
-    <div className="self-start text-gray-400 text-sm italic mt-2 px-3">
-      <div className="flex items-center gap-2">
-        <div className="flex gap-1">
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-        </div>
-        <span>{getTypingText()}</span>
+    <div className="flex items-center gap-3 px-4 py-2 text-sm text-gray-400 animate-fadeIn">
+      <div className="flex-shrink-0">
+        <TypingDots />
       </div>
+      <span className="truncate">
+        {typingText}
+      </span>
     </div>
   );
-};
+});

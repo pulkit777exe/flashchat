@@ -5,12 +5,10 @@ import { log } from "./utils/logger";
 
 dotenv.config();
 
-const PORT = Number(process.env.NODE_WEBSOCKET_PORT);
-const HOST = process.env.NODE_BACKEND_URL;
+const PORT = Number(process.env.NODE_WEBSOCKET_PORT) || 8080;
+const HOST = process.env.NODE_BACKEND_URL || "localhost";
 
-// const HOST = "localhost";
-console.log(HOST);
-console.log(PORT);
+console.log(`Server starting on: ${HOST}:${PORT}`);
 
 const wss = new WebSocketServer({ port: PORT });
 
@@ -32,6 +30,10 @@ wss.on("connection", (socket: WebSocket) => {
       context.currentPersonId
     )
   );
+});
+
+wss.on("error", (error) => {
+  console.error("WebSocket server error:", error);
 });
 
 log(`WebSocket server running at ws://${HOST}:${PORT}`);

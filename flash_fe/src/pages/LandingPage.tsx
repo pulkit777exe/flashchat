@@ -1,14 +1,28 @@
 import { useNavigate } from "react-router-dom";
+import { useResetRecoilState } from "recoil";
+import { MessagesAtom, TypingUsersAtom, ConnectionStatusAtom, WebSocketAtom } from "../store/atoms";
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  
+  // Reset all chat-related state when landing on this page
+  const resetMessages = useResetRecoilState(MessagesAtom);
+  const resetTypingUsers = useResetRecoilState(TypingUsersAtom);
+  const resetConnectionStatus = useResetRecoilState(ConnectionStatusAtom);
+  const resetWebSocket = useResetRecoilState(WebSocketAtom);
 
   const navigateToChat = () => {
+    // Reset all state before navigating
+    resetMessages();
+    resetTypingUsers();
+    resetConnectionStatus();
+    resetWebSocket();
+    
     navigate("/join");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-silver text-white relative overflow-hidden">
       {/* Navigation */}
       <nav className="flex items-center justify-between px-10 py-6 z-10 relative">
         <div className="flex items-center gap-3">
@@ -16,7 +30,7 @@ export default function LandingPage() {
             FlashChat
           </span>
         </div>
-        <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">
+        <div className="hidden md:flex items-center gap-6 text-sm text-gray-300">
           <span>Real-time messaging</span>
           <span>•</span>
           <span>Temporary rooms</span>
@@ -29,82 +43,75 @@ export default function LandingPage() {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute w-full h-full">
           {/* Animated gradient blobs */}
-          <div className="absolute top-20 left-20 w-72 h-72 bg-gray-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-          <div className="absolute top-40 right-20 w-72 h-72 bg-grey-700 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-20 w-72 h-72 bg-gray-600 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-silver/20 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+          <div className="absolute -bottom-32 left-20 w-72 h-72 bg-silver/15 rounded-full mix-blend-multiply filter blur-xl opacity-25 animate-pulse animation-delay-4000"></div>
         </div>
         
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
       </div>
 
       {/* Hero Content */}
       <div className="relative z-10 px-6 md:px-14 pt-20 md:pt-32 max-w-4xl mx-auto text-center">
         <div className="space-y-6">
-          <div className="inline-flex items-center px-4 py-2 bg-gray-600/10 border border-gray-600/20 rounded-full text-white text-sm font-medium">
+          <div className="inline-flex items-center px-4 py-2 bg-silver/10 border border-silver/20 rounded-full text-white text-sm font-medium">
             ✨ Real-time messaging made simple
           </div>
           
           <h1 className="text-6xl md:text-6xl lg:text-7xl font-black leading-tight">
-            <span className="bg-gradient-to-r from-white via-gray-400 to-gray-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-silver to-gray-300 bg-clip-text text-transparent">
               Flash
             </span>
             <br />
-            <span className="bg-gradient-to-r from-gray-600 via-white to-gray-500 bg-clip-text text-transparent">
-              Chat
-            </span>
+            <span className="text-white">Chat</span>
           </h1>
           
-          <p className="text-gray-400 text-md md:text-lg max-w-2xl mx-auto leading-relaxed">
-            Connect instantly with temporary chat rooms. No accounts, no hassle. 
-            Just create a room and start chatting with anyone, anywhere.
+          <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Connect with others in real-time. Create temporary rooms instantly – no sign-up required. 
+            Just choose a room, pick a name, and start chatting.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
-            <button 
+          <div className="flex justify-center pt-6">
+            <button
               onClick={navigateToChat}
-              className="group relative px-8 py-4 bg-white rounded-full font-bold text-black shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-102 hover:-translate-y-1"
+              className="group inline-flex items-center px-8 py-4 bg-white text-black font-semibold rounded-xl hover:bg-silver transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
             >
-              <span className="relative z-10 text-black">Start Chatting Now</span>
-              <div className="absolute inset-0 bg-gray-300 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur"></div>
+              Start Chatting
+              <svg className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
-            
-            <div className="flex items-center gap-4 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span>No Login required</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Feature cards */}
-      <div className="relative z-10 px-6 pt-20 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              icon: "⚡",
-              title: "Instant Setup",
-              description: "Create or join rooms in seconds"
-            },
-            {
-              icon: "🔒",
-              title: "Private & Secure",
-              description: "Your conversations are temporary and private"
-            },
-            {
-              icon: "🌐",
-              title: "Cross Platform",
-              description: "Works on any device with a web browser"
-            }
-          ].map((feature, index) => (
-            <div key={index} className="group p-6 bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-xl hover:bg-gray-800/50 transition-all duration-300">
-              <div className="text-3xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-              <p className="text-gray-400">{feature.description}</p>
+      {/* Features Section */}
+      <div className="relative z-10 px-6 md:px-14 pt-20 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="text-center p-6 rounded-xl bg-black/50 backdrop-blur-sm border border-silver/20">
+            <div className="w-12 h-12 bg-silver/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+              ⚡
             </div>
-          ))}
+            <h3 className="text-xl font-semibold mb-2 text-white">Lightning Fast</h3>
+            <p className="text-gray-300">Messages appear instantly with real-time WebSocket connections</p>
+          </div>
+          
+          <div className="text-center p-6 rounded-xl bg-black/50 backdrop-blur-sm border border-silver/20">
+            <div className="w-12 h-12 bg-silver/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+              🔒
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-white">Privacy First</h3>
+            <p className="text-gray-300">Temporary rooms that disappear when everyone leaves</p>
+          </div>
+          
+          <div className="text-center p-6 rounded-xl bg-black/50 backdrop-blur-sm border border-silver/20">
+            <div className="w-12 h-12 bg-silver/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+              ✨
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-white">No Setup</h3>
+            <p className="text-gray-300">Jump in immediately – no accounts, no downloads, no hassle</p>
+          </div>
         </div>
       </div>
     </div>
