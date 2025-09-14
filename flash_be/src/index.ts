@@ -36,4 +36,4 @@ wss.on("error", (error) => {
   console.error("WebSocket server error:", error);
 });
 
-log(`WebSocket server running at ws://${HOST}:${PORT}`);
+log(`WebSocket server running at ${HOST}:${PORT}`);

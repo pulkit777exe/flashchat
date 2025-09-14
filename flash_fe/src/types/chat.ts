@@ -1,99 +1,190 @@
-// Connection status types
-export type ConnectionStatus = "disconnected" | "connecting" | "connected";
+// Enhanced chat types to support file messages
 
-// Message types
-export type MessageType = "chat" | "info" | "error" | "system";
-
-// Base message interface
-export interface ChatMessage {
+export interface BaseMessage {
   id: string;
-  type: MessageType;
-  message: string;
   personName: string;
   personId: string;
   timestamp: number;
   roomId?: string;
 }
 
-// WebSocket message types
-export type WebSocketMessageType = 
-  | "join" 
-  | "leave" 
-  | "chat" 
-  | "info" 
-  | "error"
-  | "typing_start" 
-  | "typing_stop"
-  | "ping"
-  | "pong"
-  | "user_joined"
-  | "user_left";
+export interface TextMessage extends BaseMessage {
+  type: "chat" | "info";
+  message: string;
+}
 
-// WebSocket message interface
-export interface WebSocketMessage {
-  type: WebSocketMessageType;
-  message?: string;
+export interface FileData {
+  name: string;
+  type: string;
+  size: number;
+  data?: string; 
+  url?: string;
+  thumbnailUrl?: string;
+  isBase64?: boolean;
+}
+
+export interface FileMessage extends BaseMessage {
+  type: "file";
+  fileData: FileData;
+}
+
+export type ChatMessage = TextMessage | FileMessage;
+
+// WebSocket message types
+export interface BaseWebSocketMessage {
+  type: string;
   personName?: string;
   personId?: string;
   roomId?: string;
   timestamp?: number;
-  userName?: string; // For backward compatibility
-  userId?: string;   // For backward compatibility
+  message?: string;
 }
 
-// Typing user interface
+export interface ChatWebSocketMessage extends BaseWebSocketMessage {
+  type: "chat" | "info";
+  message: string;
+}
+
+export interface FileWebSocketMessage extends BaseWebSocketMessage {
+  type: "file_message";
+  fileData: FileData;
+}
+
+export interface FileStartMessage extends BaseWebSocketMessage {
+  type: "file_start";
+  fileId: string;
+  fileData: {
+    name: string;
+    type: string;
+    size: number;
+    totalChunks: number;
+  };
+}
+
+export interface FileChunkMessage extends BaseWebSocketMessage {
+  type: "file_chunk";
+  fileId: string;
+  chunkIndex: number;
+  data: string; 
+}
+
+export interface FileCompleteMessage extends BaseWebSocketMessage {
+  type: "file_complete";
+  fileId: string;
+}
+
+export interface FileProgressMessage extends BaseWebSocketMessage {
+  type: "file_progress";
+  fileId: string;
+  progress: number;
+}
+
+export interface FileErrorMessage extends BaseWebSocketMessage {
+  type: "file_error";
+  fileId: string;
+  message: string;
+}
+
+export interface TypingStartMessage extends BaseWebSocketMessage {
+  type: "typing_start";
+}
+
+export interface TypingStopMessage extends BaseWebSocketMessage {
+  type: "typing_stop";
+}
+
+export interface JoinMessage extends BaseWebSocketMessage {
+  type: "join";
+}
+
+export interface PingMessage extends BaseWebSocketMessage {
+  type: "ping";
+}
+
+export interface PongMessage extends BaseWebSocketMessage {
+  type: "pong";
+}
+
+export interface ErrorMessage extends BaseWebSocketMessage {
+  type: "error";
+  message: string;
+}
+
+export type WebSocketMessage = 
+  | ChatWebSocketMessage
+  | FileWebSocketMessage
+  | FileStartMessage
+  | FileChunkMessage
+  | FileCompleteMessage
+  | FileProgressMessage
+  | FileErrorMessage
+  | TypingStartMessage
+  | TypingStopMessage
+  | JoinMessage
+  | PingMessage
+  | PongMessage
+  | ErrorMessage;
+
+// File upload related types
+export interface FileUploadState {
+  selectedFile: File | null;
+  uploadProgress: number;
+  isUploading: boolean;
+  error: string | null;
+}
+
+export interface FileUploadProgress {
+  fileId: string;
+  progress: number;
+  file: File;
+}
+
+// Typing indicator types
 export interface TypingUser {
   personId: string;
   personName: string;
   timestamp: number;
 }
 
-// Room information
-export interface RoomInfo {
-  roomId: string;
-  participants: string[];
-  createdAt: number;
-}
+export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
 
-// User information
-export interface UserInfo {
-  userId: string;
-  userName: string;
-  joinedAt: number;
-  isActive: boolean;
-}
+export const isTextMessage = (message: ChatMessage): message is TextMessage => {
+  return message.type === "chat" || message.type === "info";
+};
 
-// WebSocket connection state
-export interface WebSocketState {
-  socket: WebSocket | null;
-  connectionStatus: ConnectionStatus;
-  lastConnectedAt?: number;
-  reconnectAttempts: number;
-}
+export const isFileMessage = (message: ChatMessage): message is FileMessage => {
+  return message.type === "file";
+};
 
-// Chat room state
-export interface ChatRoomState {
-  roomCode: string;
-  userName: string;
-  userId: string;
-  messages: ChatMessage[];
-  typingUsers: TypingUser[];
-  connectionStatus: ConnectionStatus;
-}
+export const isImageFile = (fileData: FileData): boolean => {
+  return fileData.type.startsWith('image/');
+};
 
-// Error types
-export interface ChatError {
-  type: 'connection' | 'message' | 'validation' | 'unknown';
-  message: string;
-  timestamp: number;
-  details?: unknown;
-}
+export const isVideoFile = (fileData: FileData): boolean => {
+  return fileData.type.startsWith('video/');
+};
 
-// Events for analytics/logging
-export interface ChatEvent {
-  type: 'message_sent' | 'message_received' | 'user_joined' | 'user_left' | 'typing_started' | 'typing_stopped';
-  userId: string;
-  roomId: string;
-  timestamp: number;
-  metadata?: Record<string, unknown>;
-}
+export const ALLOWED_FILE_TYPES = [
+  'image/jpeg',
+  'image/png', 
+  'image/gif',
+  'image/webp',
+  'video/mp4',
+  'video/webm',
+  'video/quicktime'
+];
+
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; 
+export const MAX_SMALL_FILE_SIZE = 1024 * 1024; 
+
+export const validateFile = (file: File): { valid: boolean; error?: string } => {
+  if (file.size > MAX_FILE_SIZE) {
+    return { valid: false, error: 'File too large. Maximum size is 10MB.' };
+  }
+  
+  if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+    return { valid: false, error: 'Unsupported file type. Please select an image or video.' };
+  }
+  
+  return { valid: true };
+};
