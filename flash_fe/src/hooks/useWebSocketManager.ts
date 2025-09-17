@@ -363,7 +363,7 @@ class WebSocketConnectionManager {
     }
 
     try {
-      const maxSize = 10 * 1024 * 1024;
+      const maxSize = 100 * 1024 * 1024;
       if (file.size > maxSize) {
         throw new Error('File too large. Maximum size is 10MB.');
       }
